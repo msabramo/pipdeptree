@@ -127,8 +127,8 @@ def render_tree(pkgs, pkg_index, req_map, list_all,
     :rtype: str
 
     """
-    pkg_index = dict([(p.key, p) for p in pkgs])   # {p.key: p for p in pkgs}
-    req_map = dict([(p, p.requires()) for p in pkgs])  # {p: p.requires() for p in pkgs}
+    pkg_index = dict((p.key, p) for p in pkgs)
+    req_map = dict((p, p.requires()) for p in pkgs)
     non_top = set(r.key for r in flatten(req_map.values()))
     top = [p for p in pkgs if p.key not in non_top]
 
@@ -185,8 +185,8 @@ def main():
     pkgs = pip.get_installed_distributions(local_only=args.local_only,
                                            skip=skip)
 
-    pkg_index = dict([(p.key, p) for p in pkgs])  # {p.key: p for p in pkgs}
-    req_map = dict([(p, p.requires()) for p in pkgs])  # {p: p.requires() for p in pkgs}
+    pkg_index = dict((p.key, p) for p in pkgs)
+    req_map = dict((p, p.requires()) for p in pkgs)
 
     # show warnings about possibly confusing deps if found and
     # warnings are enabled
