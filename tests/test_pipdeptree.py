@@ -79,3 +79,16 @@ def test_render_tree_freeze():
     assert '  - SQLAlchemy==0.9.1' in lines
     assert '-e git+https://github.com/naiquevin/lookupy.git@cdbe30c160e1c29802df75e145ea4ad903c05386#egg=Lookupy-master' in lines
     assert 'itsdangerous==0.23' not in lines
+
+
+def test_render_tree_cyclic_dependency():
+    with open('tests/cyclic.pickle', 'rb') as f:
+        cyclic_pkgs = pickle.load(f)
+
+    tree_str = render_tree(cyclic_pkgs, pkg_index, req_map, False,
+                           top_pkg_src, non_top_pkg_src)
+    lines = set(tree_str.split('\n'))
+    assert '  - smlib.service==0.1.33' in lines
+    assert '    - smsdk.usersvc==0.0.8' in lines
+    assert '    - smsdk.authsvc==0.0.8' in lines
+    assert '      - smlib.enums==0.0.4' in lines
