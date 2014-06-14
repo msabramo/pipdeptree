@@ -133,7 +133,10 @@ def render_tree(pkgs, pkg_index, req_map, list_all,
     top = [p for p in pkgs if p.key not in non_top]
     pkgs_processed = set()
 
-    def aux(pkg, indent=0):
+    def aux(pkg, indent=0, chain=None):
+        if chain is None:
+            chain = [pkg]
+
         # In this function, pkg can either be a Distribution or
         # Requirement instance
         if indent > 0:
@@ -153,9 +156,14 @@ def render_tree(pkgs, pkg_index, req_map, list_all,
         # packages, eg. `testresources`, this will fail
         if pkg.key in pkg_index and pkg not in pkgs_processed:
             pkg_deps = pkg_index[pkg.key].requires()
-            pkgs_processed.add(pkg)
-            result += list(flatten([aux(d, indent=indent+2)
-                                    for d in pkg_deps]))
+            filtered_deps = []
+            for d in pkg_deps:
+                if d.project_name in [p.project_name for p in chain]:
+                    print('# Circular dependency: %s'
+                          % (' => '.join([str(p) for p in chain] + [str(d)])))
+                else:
+                    filtered_deps.append(aux(d, indent=indent+2, chain=chain+[d]))
+            result += list(flatten(filtered_deps))
         return result
 
     lines = flatten([aux(p) for p in (pkgs if list_all else top)])
